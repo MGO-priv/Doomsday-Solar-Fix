@@ -14,5 +14,7 @@ No guarantee. Use at your own risk.
 Built using GPT-5.4 AI (idea based on halucination of protein-based intelligence).
 
 References:
+
 https://rhodesmill.org/skyfield/
+
 https://www.ncei.noaa.gov/products/world-magnetic-model

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Doomsday Solar Fix v5.6</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f2f2f7;
+      --card: #ffffff;
+      --card-secondary: #f9f9fb;
+      --text: #1c1c1e;
+      --subtext: #6e6e73;
+      --border: rgba(60, 60, 67, 0.18);
+      --border-soft: rgba(60, 60, 67, 0.10);
+      --blue: #007aff;
+      --red: #ff453a;
+      --gray-dot: #8e8e93;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --radius-xl: 22px;
+      --radius-md: 14px;
+      --input-h: 46px;
+      --map-grid: rgba(28,28,30,0.10);
+      --map-special: rgba(255,255,255,0.75);
+      --map-label: rgba(28,28,30,0.62);
+      --map-label-bg: rgba(255,255,255,0.68);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000;
+        --card: #1c1c1e;
+        --card-secondary: #2c2c2e;
+        --text: #f5f5f7;
+        --subtext: #a1a1a6;
+        --border: rgba(84, 84, 88, 0.65);
+        --border-soft: rgba(84, 84, 88, 0.32);
+        --blue: #0a84ff;
+        --shadow: 0 10px 28px rgba(0,0,0,0.28);
+        --map-grid: rgba(255,255,255,0.14);
+        --map-special: rgba(255,255,255,0.72);
+        --map-label: rgba(255,255,255,0.72);
+        --map-label-bg: rgba(28,28,30,0.42);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .app {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 24px 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 36px;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--subtext);
+      font-size: 15px;
+      line-height: 1.5;
+      max-width: 920px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--subtext);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .input {
+      width: 100%;
+      min-height: var(--input-h);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      color: var(--text);
+      padding: 0 14px;
+      font-size: 16px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: var(--card-secondary);
+      border: 1px solid var(--border-soft);
+      padding: 6px;
+      border-radius: var(--radius-md);
+    }
+
+    .segmented button {
+      min-height: 36px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .segmented button.active {
+      background: var(--card);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      background: var(--card-secondary);
+    }
+
+    .toggle-row label {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .toggle-row input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .primary-button, .secondary-button, .file-button {
+      min-height: 46px;
+      border: 0;
+      border-radius: 14px;
+      padding: 0 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      width: auto;
+    }
+
+    .primary-button {
+      background: var(--blue);
+      color: white;
+    }
+
+    .secondary-button,
+    .file-button {
+      background: var(--card-secondary);
+      color: var(--text);
+      border: 1px solid var(--border-soft);
+    }
+
+    .helper, .footnote {
+      color: var(--subtext);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .observation-guide,
+    .correction-panel {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: var(--card-secondary);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+    }
+
+    .observation-guide-title,
+    .correction-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .observation-guide ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--subtext);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .correction-lines {
+      display: grid;
+      gap: 6px;
+      color: var(--subtext);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .hidden { display: none !important; }
+
+    .upload-file-line {
+      margin-top: 8px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .status-good { background: rgba(52,199,89,0.14); color: #1f7a3f; }
+    .status-caution { background: rgba(255,159,10,0.14); color: #a35f00; }
+    .status-bad { background: rgba(255,69,58,0.14); color: #b42318; }
+
+    .big-coord {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .sub-coord {
+      color: var(--subtext);
+      font-size: 14px;
+      margin-bottom: 14px;
+      line-height: 1.45;
+      min-height: 1em;
+    }
+
+    .mini-stat-grid {
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .mini-stat {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-width: 132px;
+      border: 1px solid var(--border-soft);
+      background: var(--card-secondary);
+      border-radius: 16px;
+      padding: 14px 18px;
+      max-width: 100%;
+    }
+
+    .mini-stat-label {
+      color: var(--subtext);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      width: 100%;
+      text-align: center;
+    }
+
+    .mini-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.1;
+      text-align: center;
+      width: 100%;
+    }
+
+    .confidence-explainer {
+      margin: 8px 0 16px;
+      color: var(--subtext);
+      font-size: 13px;
+      line-height: 1.55;
+      max-width: 760px;
+    }
+
+    .map-wrap {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      margin-bottom: 12px;
+    }
+
+    .map-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      background: linear-gradient(to bottom, #ecf7ff 0%, #cbe7ff 100%);
+      touch-action: manipulation;
+    }
+
+    .map-image,
+    .map-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--subtext);
+      font-size: 12px;
+      margin: 4px 0 10px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .legend-dot.red { background: #FF3B30; }
+    .legend-dot.gray { background: #8E8E93; }
+
+    .rows {
+      display: grid;
+      gap: 2px;
+      margin-top: 10px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .row-label {
+      color: var(--subtext);
+      font-size: 14px;
+      line-height: 1.45;
+      flex: 1 1 45%;
+    }
+
+    .row-value {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 600;
+      word-break: break-word;
+      line-height: 1.45;
+      flex: 1 1 55%;
+    }
+
+    .warning-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .warning { background: rgba(255,69,58,0.10); color: #8f1d18; }
+    .caution { background: rgba(255,159,10,0.12); color: #8a5300; }
+
+    .error-box {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,69,58,0.10);
+      color: #8f1d18;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--subtext);
+      font-size: 13px;
+      padding: 6px 0 18px;
+    }
+
+    @media (max-width: 1040px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        padding: 16px 12px 14px;
+      }
+
+      .card {
+        padding: 16px;
+        border-radius: 18px;
+        margin-bottom: 14px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+        line-height: 1.12;
+      }
+
+      .hero p {
+        font-size: 14px;
+      }
+
+      .section-title {
+        font-size: 18px;
+        margin-bottom: 12px;
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .field label {
+        font-size: 12px;
+      }
+
+      .input {
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+      .segmented {
+        gap: 6px;
+        padding: 5px;
+      }
+
+      .segmented button {
+        min-height: 38px;
+        font-size: 14px;
+      }
+
+      .toggle-row {
+        min-height: 44px;
+        padding: 10px 12px;
+      }
+
+      .toggle-row label {
+        font-size: 14px;
+        line-height: 1.35;
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .primary-button,
+      .secondary-button,
+      .file-button {
+        width: 100%;
+        min-height: 44px;
+        font-size: 15px;
+      }
+
+      .big-coord {
+        font-size: 22px;
+      }
+
+      .mini-stat {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .mini-stat-value {
+        font-size: 22px;
+      }
+
+      .confidence-explainer,
+      .helper,
+      .footnote,
+      .observation-guide ul,
+      .correction-lines,
+      .warning-item,
+      .error-box {
+        font-size: 13px;
+      }
+
+      .row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .row-label,
+      .row-value {
+        flex: none;
+        width: 100%;
+        text-align: left;
+      }
+
+      .map-legend {
+        gap: 10px 14px;
+        font-size: 11px;
+      }
+
+      .footer {
+        font-size: 12px;
+        padding-bottom: 8px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .hero h1 {
+        font-size: 24px;
+      }
+
+      .big-coord {
+        font-size: 20px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card hero">
+      <h1>Doomsday Solar Fix v5.6</h1>
+      <p>Portable offline web app for estimating latitude and longitude, using compass and chronometer, for sea navigation purposes. It uses a built-in JavaScript solar solver and optional magnetic correction based on World Magnetic Model. No guarantee. Use at your own risk.</p>
+    </section>
+
+    <section class="layout">
+      <div class="card">
+        <h2 class="section-title">Observation</h2>
+
+        <div class="field">
+          <label for="dateInput">Date</label>
+          <input id="dateInput" class="input" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="timeInput">UTC time</label>
+          <input id="timeInput" class="input" type="time" step="1" />
+        </div>
+
+        <div class="field">
+          <label for="azimuthInput">Sun rise/set azimuth (° from true north)</label>
+          <input id="azimuthInput" class="input" type="number" inputmode="decimal" placeholder="83.4" />
+        </div>
+
+        <div class="field">
+          <label for="compassCorrectionInput">Compass correction (°)</label>
+          <input id="compassCorrectionInput" class="input" type="number" inputmode="decimal" value="0" />
+        </div>
+
+        <div class="field">
+          <label for="altitudeInput">Altitude above MSL (m)</label>
+          <input id="altitudeInput" class="input" type="number" inputmode="decimal" value="1" />
+        </div>
+
+        <div class="field">
+          <label>Hemisphere</label>
+          <div class="segmented" id="hemisphereControl">
+            <button type="button" data-value="N" class="active">Northern</button>
+            <button type="button" data-value="S">Southern</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Event</label>
+          <div class="segmented" id="eventControl">
+            <button type="button" data-value="sunrise" class="active">Sunrise</button>
+            <button type="button" data-value="sunset">Sunset</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="toggle-row">
+            <label for="magCorrectionToggle">Enable magnetic correction</label>
+            <input id="magCorrectionToggle" type="checkbox" />
+          </div>
+        </div>
+
+        <div class="field hidden" id="wmmFileField">
+          <button id="wmmFileButton" class="file-button" type="button">Choose WMM.COF</button>
+          <div id="wmmFileName" class="helper upload-file-line hidden">Uploaded file: —</div>
+          <input id="wmmFileInput" type="file" accept=".COF,.cof,text/plain" class="hidden" />
+        </div>
+
+        <div class="button-row">
+          <button id="estimateButton" class="primary-button" type="button">Estimate Position</button>
+          <button id="resetButton" class="secondary-button" type="button">Reset</button>
+        </div>
+
+        <div class="correction-panel">
+          <div class="correction-title">Magnetic correction</div>
+          <div class="correction-lines">
+            <div id="wmmStatusLine">WMM2025 status: loading WMM.COF...</div>
+            <div id="guessLocationLine">Guessed position: not set</div>
+            <div id="declinationLine">WMM2025 declination: not available</div>
+            <div id="correctedAzimuthLine">Corrected azimuth: not applied</div>
+          </div>
+        </div>
+
+        <div class="observation-guide">
+          <div class="observation-guide-title">Highest-confidence observation guidance</div>
+          <ul>
+            <li>Best chances are usually when the Sun is far from the equinoxes, so around the solstice seasons.</li>
+            <li>Confidence is usually strongest at higher solar declination and weakest when the azimuth is near 90° or 270°.</li>
+            <li>Sea horizon, true-north azimuth reference, and accurate UTC time all matter.</li>
+            <li>Typical stronger cases are farther poleward within the selected hemisphere, especially when the sunrise/sunset point is visibly displaced from due east/west.</li>
+          </ul>
+        </div>
+
+        <div class="helper">
+          Put <strong>world-map.png</strong>, <strong>app.js</strong>, and <strong>WMM.COF</strong> in the same folder as this HTML file. If the browser blocks local file loading, use the WMM.COF file picker. The magnetic correction feature uses <strong>World Magnetic Model</strong>.
+        </div>
+
+        <div id="errorBox" class="error-box hidden"></div>
+      </div>
+
+      <div>
+        <section id="resultsCard" class="card">
+          <h2 class="section-title">Position</h2>
+          <div id="statusBadge" class="status-badge hidden">Status</div>
+          <div id="bigCoord" class="big-coord">Click the map to inspect and guess a position</div>
+          <div id="subCoord" class="sub-coord"></div>
+
+          <div class="mini-stat-grid hidden" id="confidenceCard">
+            <div class="mini-stat">
+              <div class="mini-stat-label">Confidence</div>
+              <div id="confidenceValue" class="mini-stat-value">—</div>
+            </div>
+          </div>
+
+          <div class="confidence-explainer">
+            Confidence is a heuristic estimate, not a probability guarantee. Higher confidence generally means the measured azimuth is farther from due east/west, the date is farther from the equinoxes, and the final internal fit is tighter. Lower confidence means the geometry is more ambiguous or unstable.
+          </div>
+
+          <div class="map-wrap">
+            <div class="map-stage">
+              <img id="mapImage" class="map-image" alt="Offline world map" src="world-map.png" />
+              <svg id="mapSvg" class="map-svg" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <filter id="pinGlow" x="-100%" y="-100%" width="300%" height="300%">
+                    <feGaussianBlur stdDeviation="8" result="blur"></feGaussianBlur>
+                    <feMerge>
+                      <feMergeNode in="blur"></feMergeNode>
+                      <feMergeNode in="SourceGraphic"></feMergeNode>
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <g stroke="var(--map-grid)" stroke-width="1" fill="none" opacity="0.8">
+                  <line x1="0" y1="83.333" x2="1000" y2="83.333"></line>
+                  <line x1="0" y1="166.666" x2="1000" y2="166.666"></line>
+                  <line x1="0" y1="250" x2="1000" y2="250"></line>
+                  <line x1="0" y1="333.333" x2="1000" y2="333.333"></line>
+                  <line x1="0" y1="416.666" x2="1000" y2="416.666"></line>
+                  <line x1="166.666" y1="0" x2="166.666" y2="500"></line>
+                  <line x1="333.333" y1="0" x2="333.333" y2="500"></line>
+                  <line x1="500" y1="0" x2="500" y2="500"></line>
+                  <line x1="666.666" y1="0" x2="666.666" y2="500"></line>
+                  <line x1="833.333" y1="0" x2="833.333" y2="500"></line>
+                </g>
+
+                <g fill="var(--map-label-bg)">
+                  <rect x="4" y="242" width="22" height="16" rx="6"></rect>
+                  <rect x="489" y="6" width="22" height="16" rx="6"></rect>
+                  <rect x="4" y="58.016" width="42" height="16" rx="6"></rect>
+                  <rect x="4" y="176.366" width="42" height="16" rx="6"></rect>
+                  <rect x="4" y="307.634" width="42" height="16" rx="6"></rect>
+                  <rect x="4" y="425.984" width="42" height="16" rx="6"></rect>
+                </g>
+
+                <g fill="var(--map-label)" font-size="11" font-weight="700" text-anchor="middle">
+                  <text x="15" y="253">0°</text>
+                  <text x="500" y="17">0°</text>
+                  <text x="25" y="69.016">66.6°</text>
+                  <text x="25" y="187.366">23.4°</text>
+                  <text x="25" y="318.634">23.4°</text>
+                  <text x="25" y="436.984">66.6°</text>
+                </g>
+
+                <g stroke="rgba(255,255,255,0.42)" stroke-width="1.5" fill="none">
+                  <line x1="0" y1="250" x2="1000" y2="250"></line>
+                  <line x1="500" y1="0" x2="500" y2="500"></line>
+                </g>
+
+                <g stroke="var(--map-special)" stroke-width="1.4" fill="none" opacity="0.95" stroke-dasharray="7 6">
+                  <line x1="0" y1="184.366" x2="1000" y2="184.366"></line>
+                  <line x1="0" y1="315.634" x2="1000" y2="315.634"></line>
+                  <line x1="0" y1="66.016" x2="1000" y2="66.016"></line>
+                  <line x1="0" y1="433.984" x2="1000" y2="433.984"></line>
+                </g>
+
+                <g id="mapMissingGroup" class="hidden">
+                  <rect x="322" y="206" width="356" height="88" rx="18" fill="rgba(255,255,255,0.78)"></rect>
+                  <text x="500" y="238" text-anchor="middle" fill="rgba(28,28,30,0.80)" font-size="22" font-weight="700">world-map.png not found</text>
+                  <text x="500" y="267" text-anchor="middle" fill="rgba(28,28,30,0.62)" font-size="15" font-weight="600">Put it in the same folder as index.html</text>
+                </g>
+
+                <g id="mapMarker" class="hidden" filter="url(#pinGlow)">
+                  <circle id="mapMarkerHalo" cx="500" cy="250" r="22" fill="rgba(255,59,48,0.16)"></circle>
+                  <circle id="mapMarkerRing" cx="500" cy="250" r="11" fill="rgba(255,59,48,0.20)" stroke="rgba(255,59,48,0.55)" stroke-width="1.8"></circle>
+                  <circle id="mapMarkerDot" cx="500" cy="250" r="6" fill="#FF3B30"></circle>
+                </g>
+
+                <g id="guessMarker" class="hidden">
+                  <circle id="guessMarkerHalo" cx="500" cy="250" r="18" fill="rgba(142,142,147,0.18)"></circle>
+                  <circle id="guessMarkerRing" cx="500" cy="250" r="9" fill="rgba(142,142,147,0.20)" stroke="rgba(142,142,147,0.62)" stroke-width="1.6"></circle>
+                  <circle id="guessMarkerDot" cx="500" cy="250" r="5" fill="#8E8E93"></circle>
+                </g>
+
+                <g id="mapMarkerLabel" class="hidden">
+                  <rect id="mapLabelBox" x="520" y="210" rx="12" ry="12" width="180" height="36" fill="rgba(28,28,30,0.82)"></rect>
+                  <text id="mapLabelText" x="532" y="233" fill="#ffffff" font-size="14" font-weight="700">0° 0′ N · 0° 0′ E</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="map-legend">
+            <div class="legend-item"><span class="legend-dot red"></span><span>Estimated position</span></div>
+            <div class="legend-item"><span class="legend-dot gray"></span><span>Guessed position for magnetic correction</span></div>
+          </div>
+
+          <div id="mapCaption" class="footnote"></div>
+
+          <div class="rows" id="estimatedRows"></div>
+          <div class="rows" id="modelRows"></div>
+          <div class="rows" id="residualRows"></div>
+        </section>
+
+        <section id="warningsCard" class="card hidden">
+          <h2 class="section-title">Warnings</h2>
+          <div id="warningsList"></div>
+        </section>
+      </div>
+    </section>
+
+    <div class="footer">by MGO 2026</div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

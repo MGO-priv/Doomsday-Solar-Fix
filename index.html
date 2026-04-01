@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Doomsday Solar Fix v5.6</title>
+  <title>Doomsday Solar Fix</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -214,6 +214,12 @@
       font-size: 13px;
       line-height: 1.5;
       margin-top: 10px;
+    }
+
+    .helper a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     .observation-guide,
@@ -577,7 +583,7 @@
 <body>
   <main class="app">
     <section class="card hero">
-      <h1>Doomsday Solar Fix v5.6</h1>
+      <h1>Doomsday Solar Fix</h1>
       <p>Portable offline web app for estimating latitude and longitude, using compass and chronometer, for sea navigation purposes. It uses a built-in JavaScript solar solver and optional magnetic correction based on World Magnetic Model. No guarantee. Use at your own risk.</p>
     </section>
 
@@ -596,7 +602,7 @@
         </div>
 
         <div class="field">
-          <label for="azimuthInput">Sun rise/set azimuth (°)</label>
+          <label for="azimuthInput">Sun rise/set azimuth (° from true north)</label>
           <input id="azimuthInput" class="input" type="number" inputmode="decimal" placeholder="83.4" />
         </div>
 
@@ -665,7 +671,8 @@
         </div>
 
         <div class="helper">
-          Put <strong>world-map.png</strong>, <strong>app.js</strong>, and <strong>WMM.COF</strong> in the same folder as this HTML file. If the browser blocks local file loading, use the WMM.COF file picker. The magnetic correction feature uses <strong>World Magnetic Model</strong>.
+          If the browser blocks WMM.COF file loading, use the file picker. The magnetic correction feature uses
+          <a href="https://www.ncei.noaa.gov/products/world-magnetic-model" target="_blank" rel="noopener noreferrer">World Magnetic Model</a>.
         </div>
 
         <div id="errorBox" class="error-box hidden"></div>
